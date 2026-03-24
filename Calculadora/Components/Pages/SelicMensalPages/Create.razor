@@ -1,0 +1,77 @@
+﻿@page "/selicmensals/create"
+@using Microsoft.EntityFrameworkCore
+@using CalculadoraDebitos.Models
+@inject IDbContextFactory<CalculadoraDebitos.Data.AppDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Inserir</h1>
+
+<h2>Selic Mensal</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="SelicMensal" OnValidSubmit="AddSelicMensal" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="competencia" class="form-label">Competencia:</label> 
+                <InputDate id="competencia" @bind-Value="SelicMensal.Competencia" class="form-control" /> 
+                <ValidationMessage For="() => SelicMensal.Competencia" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="ano" class="form-label">Ano:</label> 
+                <InputNumber id="ano" @bind-Value="SelicMensal.Ano" class="form-control" /> 
+                <ValidationMessage For="() => SelicMensal.Ano" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="mes" class="form-label">Mes:</label> 
+                <InputNumber id="mes" @bind-Value="SelicMensal.Mes" class="form-control" /> 
+                <ValidationMessage For="() => SelicMensal.Mes" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="percentualmensal" class="form-label">PercentualMensal:</label> 
+                <InputNumber id="percentualmensal" @bind-Value="SelicMensal.PercentualMensal" class="form-control" /> 
+                <ValidationMessage For="() => SelicMensal.PercentualMensal" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Inserir</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/selicmensals">Voltar a Listagem</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private SelicMensal SelicMensal { get; set; } = default!;
+    
+
+    protected override void OnInitialized()
+    {
+        if (SelicMensal is null)
+        {
+            SelicMensal = new()
+            {
+                // Define a data de hoje
+                Competencia = DateTime.Today,
+
+                // Opcional: já preenche Ano e Mês baseados no hoje
+                Ano = DateTime.Today.Year,
+                Mes = DateTime.Today.Month
+            };
+        }
+    }
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddSelicMensal()
+    {
+        using var context = DbFactory.CreateDbContext();
+        
+        context.SelicMensal.Add(SelicMensal);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/selicmensals");
+    }
+}

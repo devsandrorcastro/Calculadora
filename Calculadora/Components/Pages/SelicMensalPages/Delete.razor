@@ -1,0 +1,67 @@
+﻿@page "/selicmensals/delete"
+@using Microsoft.EntityFrameworkCore
+@using CalculadoraDebitos.Models
+@inject IDbContextFactory<CalculadoraDebitos.Data.AppDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Excluir</h1>
+
+<p>Você está certo desta exclusão?</p>
+<div>
+    <h2>Selic Mensal</h2>
+    <hr />
+    @if (selicmensal is null)
+    {
+        <p><em>Carregando...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Competencia</dt>
+            <dd class="col-sm-10">@selicmensal.Competencia</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Ano</dt>
+            <dd class="col-sm-10">@selicmensal.Ano</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Mes</dt>
+            <dd class="col-sm-10">@selicmensal.Mes</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">PercentualMensal</dt>
+            <dd class="col-sm-10">@selicmensal.PercentualMensal</dd>
+        </dl>
+        <EditForm method="post" Model="selicmensal" OnValidSubmit="DeleteSelicMensal" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(selicmensal is null)">Excluir</button> |
+            <a href="/selicmensals">Voltar a Listagem</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private SelicMensal? selicmensal;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        selicmensal = await context.SelicMensal.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (selicmensal is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteSelicMensal()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.SelicMensal.Remove(selicmensal!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/selicmensals");
+    }
+}

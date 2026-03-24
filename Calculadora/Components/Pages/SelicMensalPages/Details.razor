@@ -1,0 +1,52 @@
+﻿@page "/selicmensals/details"
+@using Microsoft.EntityFrameworkCore
+@using CalculadoraDebitos.Models
+@inject IDbContextFactory<CalculadoraDebitos.Data.AppDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Detalhes</PageTitle>
+
+<h1>Detalhes</h1>
+
+<div>
+    <h2>Selic Mensal</h2>
+    <hr />
+    @if (selicmensal is null)
+    {
+        <p><em>Carregando...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Competencia</dt>
+            <dd class="col-sm-10">@selicmensal.Competencia</dd>
+            <dt class="col-sm-2">Ano</dt>
+            <dd class="col-sm-10">@selicmensal.Ano</dd>
+            <dt class="col-sm-2">Mes</dt>
+            <dd class="col-sm-10">@selicmensal.Mes</dd>
+            <dt class="col-sm-2">PercentualMensal</dt>
+            <dd class="col-sm-10">@selicmensal.PercentualMensal</dd>
+        </dl>
+        <div>
+            <a href="@($"/selicmensals/edit?id={selicmensal.Id}")">Editar</a> |
+            <a href="@($"/selicmensals")">Voltar a  Listagem</a>
+        </div>
+    }
+</div>
+
+@code {
+    private SelicMensal? selicmensal;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        selicmensal = await context.SelicMensal.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (selicmensal is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

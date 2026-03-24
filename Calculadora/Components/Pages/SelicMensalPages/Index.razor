@@ -1,0 +1,85 @@
+﻿
+@page "/selicmensals"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CalculadoraDebitos.Models
+@using CalculadoraDebitos.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CalculadoraDebitos.Data.AppDbContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="selicmensals/create">Inserir Nova Selic Mensal</a>
+</p>
+
+@* Usando o nome completo para evitar conflito com FluentUI *@
+<Microsoft.AspNetCore.Components.QuickGrid.QuickGrid Class="table" Items="context.SelicMensal.OrderByDescending(s => s.Competencia)">
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="@(s => s.Competencia)" Format="dd/MM/yyyy" Title="Competência"/>
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="@(s => s.Ano)" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="@(s => s.Mes)" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="@(s => s.PercentualMensal)" />
+
+    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Context="selicmensal">
+        <a href="@($"selicmensals/edit?id={selicmensal.Id}")">Editar</a> |
+        <a href="@($"selicmensals/details?id={selicmensal.Id}")">Detalhes</a> |
+        <a href="@($"selicmensals/delete?id={selicmensal.Id}")">Excluir</a>
+    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+</Microsoft.AspNetCore.Components.QuickGrid.QuickGrid>
+
+@code {
+    private AppDbContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}
+
+
+
+@*
+@page "/selicmensals"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CalculadoraDebitos.Models
+@using CalculadoraDebitos.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CalculadoraDebitos.Data.AppDbContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="selicmensals/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.SelicMensal">
+    <PropertyColumn Property="selicmensal => selicmensal.Competencia" />
+    <PropertyColumn Property="selicmensal => selicmensal.Ano" />
+    <PropertyColumn Property="selicmensal => selicmensal.Mes" />
+    <PropertyColumn Property="selicmensal => selicmensal.PercentualMensal" />
+
+    <TemplateColumn Context="selicmensal">
+        <a href="@($"selicmensals/edit?id={selicmensal.Id}")">Edit</a> |
+        <a href="@($"selicmensals/details?id={selicmensal.Id}")">Details</a> |
+        <a href="@($"selicmensals/delete?id={selicmensal.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private AppDbContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}
+*@

@@ -1,0 +1,59 @@
+﻿@page "/uffianuals/delete"
+@using Microsoft.EntityFrameworkCore
+@using CalculadoraDebitos.Models
+@inject IDbContextFactory<CalculadoraDebitos.Data.AppDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Excluir</h1>
+
+<p>Você está certo desta exclusão?</p>
+<div>
+    <h2>Uffi Anual</h2>
+    <hr />
+    @if (uffianual is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Ano</dt>
+            <dd class="col-sm-10">@uffianual.Ano</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Valor</dt>
+            <dd class="col-sm-10">@uffianual.Valor</dd>
+        </dl>
+        <EditForm method="post" Model="uffianual" OnValidSubmit="DeleteUffiAnual" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(uffianual is null)">Delete</button> |
+            <a href="/uffianuals">Voltar a Listagem</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private UffiAnual? uffianual;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        uffianual = await context.UffiAnual.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (uffianual is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteUffiAnual()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.UffiAnual.Remove(uffianual!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/uffianuals");
+    }
+}

@@ -1,0 +1,52 @@
+﻿@page "/uffianuals/create"
+@using Microsoft.EntityFrameworkCore
+@using CalculadoraDebitos.Models
+@inject IDbContextFactory<CalculadoraDebitos.Data.AppDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Inserir</h1>
+
+<h2>Uffi Anual</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="UffiAnual" OnValidSubmit="AddUffiAnual" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="ano" class="form-label">Ano:</label> 
+                <InputNumber id="ano" @bind-Value="UffiAnual.Ano" class="form-control" /> 
+                <ValidationMessage For="() => UffiAnual.Ano" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="valor" class="form-label">Valor:</label> 
+                <InputNumber id="valor" @bind-Value="UffiAnual.Valor" class="form-control" /> 
+                <ValidationMessage For="() => UffiAnual.Valor" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Inserir</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/uffianuals">Voltar a Listagem</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private UffiAnual UffiAnual { get; set; } = default!;
+
+    protected override void OnInitialized() => UffiAnual ??= new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddUffiAnual()
+    {
+        using var context = DbFactory.CreateDbContext();
+        UffiAnual.Valor = UffiAnual.Valor * 100;
+        context.UffiAnual.Add(UffiAnual);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/uffianuals");
+    }
+}

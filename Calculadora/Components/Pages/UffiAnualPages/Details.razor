@@ -1,0 +1,48 @@
+﻿@page "/uffianuals/details"
+@using Microsoft.EntityFrameworkCore
+@using CalculadoraDebitos.Models
+@inject IDbContextFactory<CalculadoraDebitos.Data.AppDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Detalhes</h1>
+
+<div>
+    <h2>Uffi Anual</h2>
+    <hr />
+    @if (uffianual is null)
+    {
+        <p><em>Carregando...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Ano</dt>
+            <dd class="col-sm-10">@uffianual.Ano</dd>
+            <dt class="col-sm-2">Valor</dt>
+            <dd class="col-sm-10">@uffianual.Valor</dd>
+        </dl>
+        <div>
+            <a href="@($"/uffianuals/edit?id={uffianual.Id}")">Edit</a> |
+            <a href="@($"/uffianuals")">Voltar a Listagem</a>
+        </div>
+    }
+</div>
+
+@code {
+    private UffiAnual? uffianual;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        uffianual = await context.UffiAnual.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (uffianual is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

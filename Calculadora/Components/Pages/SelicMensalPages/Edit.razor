@@ -1,0 +1,104 @@
+﻿@page "/selicmensals/edit"
+@using Microsoft.EntityFrameworkCore
+@using CalculadoraDebitos.Models
+@inject IDbContextFactory<CalculadoraDebitos.Data.AppDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Editar</h1>
+
+<h2>Selic Mensal</h2>
+<hr />
+@if (SelicMensal is null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="SelicMensal" OnValidSubmit="UpdateSelicMensal" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="SelicMensal.Id" value="@SelicMensal.Id" />
+                <div class="mb-3">
+                    <label for="competencia" class="form-label">Competencia:</label>
+                    <InputDate id="competencia" @bind-Value="SelicMensal.Competencia" class="form-control" />
+                    <ValidationMessage For="() => SelicMensal.Competencia" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="ano" class="form-label">Ano:</label>
+                    <InputNumber id="ano" @bind-Value="SelicMensal.Ano" class="form-control" />
+                    <ValidationMessage For="() => SelicMensal.Ano" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="mes" class="form-label">Mes:</label>
+                    <InputNumber id="mes" @bind-Value="SelicMensal.Mes" class="form-control" />
+                    <ValidationMessage For="() => SelicMensal.Mes" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="percentualmensal" class="form-label">PercentualMensal:</label>
+                    <InputNumber id="percentualmensal" @bind-Value="SelicMensal.PercentualMensal" class="form-control" />
+                    <ValidationMessage For="() => SelicMensal.PercentualMensal" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Savar</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/selicmensals">Voltar a Listagem</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private SelicMensal? SelicMensal { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        SelicMensal ??= await context.SelicMensal.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (SelicMensal is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateSelicMensal()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(SelicMensal!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!SelicMensalExists(SelicMensal!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/selicmensals");
+    }
+
+    private bool SelicMensalExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.SelicMensal.Any(e => e.Id == id);
+    }
+}
